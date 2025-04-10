@@ -106,7 +106,7 @@ By the end of this module, you will be able to:
 | 📍 Checkpoint 1 | Interpolation     | Interpolation of given waypoints       |
 | 📍 Checkpoint 2 | Optimization | Optimized path     |
 | 📍 Checkpoint 3 | PID & Stanley Control                  | Tuning of controllers   |
-| 📍 Checkpoint 4 | The Final Implementation          | Complete implementation of PPC pipline     |
+| 📍 Checkpoint 4 | The Final Implementation          | Complete implementation of PPC pipeline     |
 
 
 ---

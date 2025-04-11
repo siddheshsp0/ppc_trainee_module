@@ -1,45 +1,41 @@
 # Application of cubic spline between n points
 import numpy as np
 import pandas as pd
-
+import matplotlib.pyplot as plt
 
 
 def set_coeff(coeff, iterator, eqn_no, x, negative=False):
-    if(negative):
-        coeff[0][iterator][eqn_no*4] = -(x**3)
-        coeff[0][iterator][eqn_no*4+1] = -(x**2)
-        coeff[0][iterator][eqn_no*4+2] = -(x)
-        coeff[0][iterator][eqn_no*4+3] = -(1.0)
-    else:
-        coeff[0][iterator][eqn_no*4] = x**3
-        coeff[0][iterator][eqn_no*4+1] = x**2
-        coeff[0][iterator][eqn_no*4+2] = x
-        coeff[0][iterator][eqn_no*4+3] = 1.0
+    # if(negative):
+    #     coeff[0][iterator][eqn_no*4] = -(x**3)
+    #     coeff[0][iterator][eqn_no*4+1] = -(x**2)
+    #     coeff[0][iterator][eqn_no*4+2] = -(x)
+    #     coeff[0][iterator][eqn_no*4+3] = -(1.0)
+    # else:
+    #     coeff[0][iterator][eqn_no*4] = x**3
+    #     coeff[0][iterator][eqn_no*4+1] = x**2
+    #     coeff[0][iterator][eqn_no*4+2] = x
+    #     coeff[0][iterator][eqn_no*4+3] = 1.0
+    factor = -1 if negative else 1
+    coeff[0][iterator][eqn_no*4] = (factor)*x**3
+    coeff[0][iterator][eqn_no*4+1] = (factor)*x**2
+    coeff[0][iterator][eqn_no*4+2] = (factor)*x
+    coeff[0][iterator][eqn_no*4+3] = (factor)*1.0
+
         
 
 def set_coeff_first_derivative(coeff, iterator, eqn_no, x, negative=False):
-    if(negative):
-        coeff[0][iterator][eqn_no*4] = -(3.0*(x**2))
-        coeff[0][iterator][eqn_no*4+1] = -(2.0*x)
-        coeff[0][iterator][eqn_no*4+2] = -(1.0)
-        coeff[0][iterator][eqn_no*4+3] = 0.0
-    else:
-        coeff[0][iterator][eqn_no*4] = 3.0*(x**2)
-        coeff[0][iterator][eqn_no*4+1] = 2.0*x
-        coeff[0][iterator][eqn_no*4+2] = 1.0
-        coeff[0][iterator][eqn_no*4+3] = 0.0
+    factor = -1 if negative else 1
+    coeff[0][iterator][eqn_no*4] = (factor)*3.0*(x**2)
+    coeff[0][iterator][eqn_no*4+1] = (factor)*2.0*x
+    coeff[0][iterator][eqn_no*4+2] = (factor)*1.0
+    coeff[0][iterator][eqn_no*4+3] = (factor)*0.0
 
 def set_coeff_second_derivative(coeff, iterator, eqn_no, x, negative=False):
-    if(negative):
-        coeff[0][iterator][eqn_no*4] = -(6.0*x)
-        coeff[0][iterator][eqn_no*4+1] = -(2.0)
-        coeff[0][iterator][eqn_no*4+2] = -(0.0)
-        coeff[0][iterator][eqn_no*4+3] = 0.0
-    else:
-        coeff[0][iterator][eqn_no*4] = 6.0*x
-        coeff[0][iterator][eqn_no*4+1] = 2.0
-        coeff[0][iterator][eqn_no*4+2] = 0.0
-        coeff[0][iterator][eqn_no*4+3] = 0.0
+    factor = -1 if negative else 1
+    coeff[0][iterator][eqn_no*4] = (factor)*6.0*x
+    coeff[0][iterator][eqn_no*4+1] = (factor)*2.0
+    coeff[0][iterator][eqn_no*4+2] = (factor)*0.0
+    coeff[0][iterator][eqn_no*4+3] = (factor)*0.0
     
 
 
@@ -57,7 +53,7 @@ def main():
     base_n=0
 
     # Importing waypoint coordinates and initialising equation coefficients matrix
-    waypoints = pd.read_csv('loop_track_waypoints.csv').head(4)
+    waypoints = pd.read_csv('loop_track_waypoints.csv')
     waypoints = waypoints.drop('Index', axis=1)
     waypoints = waypoints.to_numpy()
     num_eqn = waypoints.shape[0]-1
@@ -109,6 +105,36 @@ def main():
     coefficients = np.linalg.solve(calc_matrix[0], B_matrix)
 
     print(coefficients)
+
+
+    # Plotting the interpolated points
+    fig, ax = plt.subplots()
+    x_vals = []
+    y_vals = []
+    
+    for i in range(num_eqn):
+        a = coefficients[i*4]
+        b = coefficients[i*4+1]
+        c = coefficients[i*4+2]
+        d = coefficients[i*4+3]
+        
+        x_segment = np.linspace(waypoints[i][0], waypoints[i+1][0], 100)
+        y_segment = a * x_segment**3 + b * x_segment**2 + c * x_segment + d
+        
+        x_vals.extend(x_segment)
+        y_vals.extend(y_segment)
+    
+    ax.plot(x_vals, y_vals, label="Cubic Spline", color="blue")
+    # Plot the original waypoints (from csv filee)
+    ax.scatter(waypoints[:,0], waypoints[:,1], color="red", label="Waypoints", zorder=5)
+    
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_title("Cubic Spline Interpolation")
+    ax.legend()
+    ax.grid(True)
+    plt.show()
+
     
 
 
